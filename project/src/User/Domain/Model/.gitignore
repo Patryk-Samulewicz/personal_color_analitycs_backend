@@ -1,0 +1,4 @@
+# brak modeli domenowych z racji na śliśle powiązane security frameworku z encjami z bazy,
+# w związku z czym nie ma potrzeby tworzenia modeli domenowych i ciężko o abstrakcje
+# i UserService będzie jeden dla wszystkich encji
+# dla danych usera bardziej szczegółowych, np dane kontaktowe itp zrobi się osobny moduł

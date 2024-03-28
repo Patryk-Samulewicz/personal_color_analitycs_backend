@@ -1,0 +1,10 @@
+@import "styles/_variables.css";
+@import 'tabler.min.css';
+
+.homepage-first-img {
+    background-image: url("https://via.placeholder.com/1920x1080");
+    height: 25rem;
+    width: auto;
+}
+
+body {}

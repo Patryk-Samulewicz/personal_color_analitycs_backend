@@ -1,0 +1,5 @@
+user_routes:
+    resource:
+        path: ../src/User/Web/Controller/
+        namespace: App\User\Web\Controller
+    type: attribute
