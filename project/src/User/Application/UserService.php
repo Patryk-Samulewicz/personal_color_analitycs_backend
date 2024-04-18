@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\User\Application;
 
+use App\User\Domain\Model\UserVO;
 use App\User\Domain\Repository\RoleRepositoryInterface;
 use App\User\Domain\Repository\UserRepositoryInterface;
 use App\User\Infrastructure\Persistence\Role;
@@ -13,8 +14,8 @@ class UserService
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $hasher,
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly RoleRepositoryInterface $roleRepository
+        private readonly UserRepositoryInterface     $userRepository,
+        private readonly RoleRepositoryInterface     $roleRepository
     ) {
     }
 
@@ -39,38 +40,34 @@ class UserService
     }
 
     /**
-     * @param string $email
-     * @param string $password
-     * @param array<int> $roles
+     * @param UserVO $userVO
      * @return User
-     * @throws \RuntimeException
      */
-    public function addUser(string $email, string $password, array $roles): User
+    public function addUser(UserVO $userVO): User
     {
-        $exists = $this->userRepository->findOneByIdentifier($email);
+        $exists = $this->userRepository->findOneByIdentifier($userVO->getEmail());
 
         if ($exists) {
             throw new \RuntimeException('User already exists');
         }
 
         $user = new User();
-        $user->setEmail($email);
-        $user->setPassword(
-            $this->hasher->hashPassword(
+        $user->setEmail($userVO->getEmail())
+            ->setPassword($this->hasher->hashPassword(
                 $user,
-                $password
-            )
-        );
-
-        $roles = $this->roleRepository->findByIds($roles);
-
-        foreach ($roles as $role) {
-            $user->addRole($role);
-        }
+                $userVO->getPlainPassword()
+            ))
+            ->setName($userVO->getName())
+            ->setSurname($userVO->getSurname())
+            ->setPhone($userVO->getPhone());
 
         $this->userRepository->save($user);
 
         return $user;
     }
 
+    public function findOneByEmail(string $email): ?User
+    {
+        return $this->userRepository->findOneByIdentifier($email);
+    }
 }

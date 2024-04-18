@@ -32,7 +32,9 @@ services:
   # PostgreSQL Service
   db:
     container_name: db
-    image: postgres:alpine
+    build:
+        context: ./docker/database
+        dockerfile: Dockerfile
     ports:
       - "5432:5432"
     environment:
@@ -49,6 +51,6 @@ networks:
   symfony:
 
 volumes:
-  dbData:
+    dbData:
 
 

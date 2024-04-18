@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -21,8 +22,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private int $id;
 
+    #[Assert\Email(message: 'The email "{{ value }}" is not a valid email.')]
+    #[Assert\NotBlank(message: 'Email should not be blank')]
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     private ?string $email;
+
+    #[Assert\Regex(pattern: '/^[a-zA-Z]{2,255}$/', message: 'Name should have at least 2 characters')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private ?string $name;
+
+    #[Assert\Regex(pattern: '/^[a-zA-Z]{2,255}$/', message: 'Surname should have at least 2 characters')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private ?string $surname;
+
+    #[Assert\Regex(pattern: '/^[0-9]{9}$/', message: 'Phone number should have 9 digits')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private ?string $phone;
 
     #[ORM\Column(type: 'string')]
     private string $password;
@@ -127,6 +142,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->roles->removeElement($role)) {
             $role->removeUser($this);
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getSurname(): ?string
+    {
+        return $this->surname;
+    }
+
+    public function setSurname(?string $surname): self
+    {
+        $this->surname = $surname;
 
         return $this;
     }
