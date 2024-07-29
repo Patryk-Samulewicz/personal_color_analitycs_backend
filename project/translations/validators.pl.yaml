@@ -116,3 +116,5 @@ Error: Błąd
 'Phone number should have 9 digits': 'Numer telefonu powinien składać się z 9 cyfr'
 'Name should have at least 2 characters': 'Imię powinno składać się z co najmniej 2 znaków'
 'Surname should have at least 2 characters': 'Nazwisko powinno składać się z co najmniej 2 znaków'
+phone.already_in_use: 'Numer telefonu "{{ value }}" jest już w użyciu.'
+email.already_in_use: 'Adres e-mail "{{ value }}" jest już w użyciu.'

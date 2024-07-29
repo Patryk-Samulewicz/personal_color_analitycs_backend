@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace App\User\Domain\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use App\User\Domain\Validator\Constraints as CustomAssert;
 
 class UserVO
 {
     #[Assert\NotBlank(message: 'Email should not be blank')]
     #[Assert\Email(message: 'The email "{{ value }}" is not a valid email.')]
+    #[CustomAssert\UniqueUserEmail]
     private ?string $email;
 
     #[Assert\NotBlank(message: 'Name should not be blank')]
@@ -21,6 +23,7 @@ class UserVO
 
     #[Assert\NotBlank(message: 'Phone should not be blank')]
     #[Assert\Regex(pattern: '/^[0-9]{9}$/', message: 'Phone number should have 9 digits')]
+    #[CustomAssert\UniqueUserPhone]
     private ?string $phone;
 
     #[Assert\NotBlank(message: 'Password should not be blank')]

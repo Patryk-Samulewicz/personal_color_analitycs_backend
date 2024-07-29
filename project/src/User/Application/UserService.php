@@ -70,4 +70,19 @@ class UserService
     {
         return $this->userRepository->findOneByIdentifier($email);
     }
+
+    public function login(string $email, string $password): User
+    {
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            throw new \RuntimeException('User not found');
+        }
+
+        if (!$this->hasher->isPasswordValid($user, $password)) {
+            throw new \RuntimeException('Invalid password');
+        }
+
+        return $user;
+    }
 }

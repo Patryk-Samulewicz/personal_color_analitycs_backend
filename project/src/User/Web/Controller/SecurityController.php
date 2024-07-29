@@ -5,43 +5,46 @@ namespace App\User\Web\Controller;
 
 use App\User\Application\UserService;
 use App\User\Domain\Model\UserVO;
-use App\User\Infrastructure\Persistence\User;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends AbstractController
 {
-    #[Route(path: '/login', name: 'app_login')]
-    public function login(): JsonResponse
+    public function __construct(
+        private JWTTokenManagerInterface $jwtManager,
+        private UserService              $userService
+    )
     {
-        // will not be called because of the LoginFormAuthenticator
-        return new JsonResponse(['status' => 'success']);
     }
 
-    #[Route(path: '/current-user', name: 'app_current_user')]
-    public function currentUser(#[CurrentUser] User $user = null): JsonResponse
+    #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
     {
-        if (null === $user) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        try {
+            $user = $this->userService->login(
+                $request->request->get('email', ''),
+                $request->request->get('plainPassword', '')
+            );
+        } catch (\Exception $e) {
+            return $this->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
-        return new JsonResponse([
-            'status' => 'success',
-            'user' => [
-                'email' => $user->getEmail(),
-                'name' => $user->getName(),
-                'surname' => $user->getSurname(),
-                'phone' => $user->getPhone(),
-                'roles' => $user->getRoles(),
-            ]
+        $token = $this->jwtManager->create($user);
+
+        return $this->json([
+            'user' => $user->getUserIdentifier(),
+            'token' => $token,
         ]);
     }
+
 
 
     #[Route(path: '/logout', name: 'app_logout')]
@@ -54,8 +57,8 @@ class SecurityController extends AbstractController
 
     #[Route('/register', name: 'app_register_user')]
     public function register(
-        Request $request,
-        UserService $userService,
+        Request            $request,
+        UserService        $userService,
         ValidatorInterface $validator,
         TranslatorInterface $translator
     ): Response {
